@@ -1,11 +1,27 @@
-import { Document, DefaultTimestampProps, Types } from "mongoose";
-import Log from "./log.model";
+import { Controller, Get, Param } from '@nestjs/common';
+import { LogsService } from './logs.service';
 
-export const getLogs = async (req: { params: { email: any; }; }, res: { json: (arg0: { email: any; logs: (Document<unknown, {}, { employeeId?: string | null | undefined; email?: string | null | undefined; tool?: string | null | undefined; status?: string | null | undefined; message?: string | null | undefined; } & DefaultTimestampProps, { id: string; }, { timestamps: true; }> & Omit<{ employeeId?: string | null | undefined; email?: string | null | undefined; tool?: string | null | undefined; status?: string | null | undefined; message?: string | null | undefined; } & DefaultTimestampProps & { _id: Types.ObjectId; } & { __v: number; }, "id"> & { id: string; })[]; }) => void; }) => {
-  const logs = await Log.find({ email: req.params.email });
+@Controller('logs')
+export class LogsController {
+  constructor(private readonly logsService: LogsService) {}
 
-  res.json({
-    email: req.params.email,
-    logs
-  });
-};
+  /**
+   * GET /logs/:email
+   * Retrieve all provisioning/de-provisioning audit logs for an employee.
+   */
+  @Get(':email')
+  async findByEmail(@Param('email') email: string) {
+    const logs = await this.logsService.findByEmail(email);
+    return { email, logs };
+  }
+
+  /**
+   * GET /logs/employee/:id
+   * Retrieve all logs for an employee by their internal ID.
+   */
+  @Get('employee/:id')
+  async findByEmployeeId(@Param('id') id: string) {
+    const logs = await this.logsService.findByEmployeeId(id);
+    return { employeeId: id, logs };
+  }
+}
