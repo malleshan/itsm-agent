@@ -20,21 +20,28 @@ export class EmployeeService {
    * The provisioning service consumes that event and provisions the employee
    * in all relevant third-party tools (GitHub, Slack, Google Workspace, etc.).
    */
-  async create(dto: CreateEmployeeDto): Promise<EmployeeDocument> {
-    const employee = await this.employeeModel.create(dto);
-    this.logger.log(`Employee created: ${employee.email} (id: ${employee._id})`);
+ async create(dto: CreateEmployeeDto): Promise<EmployeeDocument> {
+  // ✅ generate email if not provided
+  const email = dto.email || this.generateEmail(dto.name);
 
-    await this.kafkaProducer.publishOnboarded({
-      employeeId: String(employee._id),
-      tenantId: employee.tenantId,
-      name: employee.name,
-      email: employee.email,
-      role: employee.role,
-      department: employee.department,
-    });
+  const employee = await this.employeeModel.create({
+    ...dto,
+    email, // ✅ USE GENERATED EMAIL
+  });
 
-    return employee;
-  }
+  this.logger.log(`Employee created: ${employee.email} (id: ${employee._id})`);
+
+  await this.kafkaProducer.publishOnboarded({
+    employeeId: String(employee._id),
+    tenantId: employee.tenantId,
+    name: employee.name,
+    email: employee.email,
+    role: employee.role,
+    department: employee.department,
+  });
+
+  return employee;
+}
 
   async findAll(): Promise<EmployeeDocument[]> {
     return this.employeeModel.find().exec();
@@ -46,6 +53,10 @@ export class EmployeeService {
     return employee;
   }
 
+  private generateEmail(name: string): string {
+  const clean = name.toLowerCase().replace(/\s+/g, '');
+  return `${clean}@terralogic.com`;
+}
   /**
    * Marks the employee as OFFBOARDED and publishes an offboarding event to Kafka.
    * The provisioning service consumes that event and removes the employee from
