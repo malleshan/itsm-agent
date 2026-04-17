@@ -1,10 +1,12 @@
 import { ConfigService } from '@nestjs/config';
-export declare class GithubAdapter {
+import { AdapterCredentials, IAdapter } from '../common/interfaces/adapter.interface';
+export declare class GithubAdapter implements IAdapter {
     private readonly config;
     private readonly logger;
     constructor(config: ConfigService);
-    private get org();
-    private get headers();
-    inviteUser(email: string): Promise<void>;
-    removeUser(email: string): Promise<void>;
+    private org;
+    private headers;
+    inviteUser(email: string, credentials?: AdapterCredentials): Promise<void>;
+    removeUser(email: string, credentials?: AdapterCredentials): Promise<void>;
+    assignRoleOrAccess(email: string, role: string, _credentials?: AdapterCredentials): Promise<void>;
 }

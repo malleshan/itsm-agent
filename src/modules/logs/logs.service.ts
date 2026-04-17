@@ -1,12 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Log, LogDocument, LogStatus } from './schemas/log.schema';
+import { Log, LogDocument, LogAction, LogStatus } from './schemas/log.schema';
 
 export interface CreateLogDto {
   employeeId: string;
+  tenantId: string;
   email: string;
   tool: string;
+  action: LogAction;
   status: LogStatus;
   message: string;
 }
@@ -22,7 +24,7 @@ export class LogsService {
 
   async create(dto: CreateLogDto): Promise<LogDocument> {
     const log = await this.logModel.create(dto);
-    this.logger.log(`[${dto.status}] ${dto.tool} → ${dto.email}: ${dto.message}`);
+    this.logger.log(`[${dto.action}][${dto.status}] ${dto.tool} → ${dto.email}: ${dto.message}`);
     return log;
   }
 
@@ -32,5 +34,9 @@ export class LogsService {
 
   async findByEmployeeId(employeeId: string): Promise<LogDocument[]> {
     return this.logModel.find({ employeeId }).sort({ createdAt: -1 }).exec();
+  }
+
+  async findByTenantId(tenantId: string): Promise<LogDocument[]> {
+    return this.logModel.find({ tenantId }).sort({ createdAt: -1 }).exec();
   }
 }

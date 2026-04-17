@@ -19,23 +19,20 @@ let LogsController = class LogsController {
     constructor(logsService) {
         this.logsService = logsService;
     }
-    async findByEmail(email) {
-        const logs = await this.logsService.findByEmail(email);
-        return { email, logs };
-    }
     async findByEmployeeId(id) {
         const logs = await this.logsService.findByEmployeeId(id);
-        return { employeeId: id, logs };
+        return { employeeId: id, total: logs.length, logs };
+    }
+    async findByTenant(tenantId) {
+        const logs = await this.logsService.findByTenantId(tenantId);
+        return { tenantId, total: logs.length, logs };
+    }
+    async findByEmail(email) {
+        const logs = await this.logsService.findByEmail(email);
+        return { email, total: logs.length, logs };
     }
 };
 exports.LogsController = LogsController;
-__decorate([
-    (0, common_1.Get)(':email'),
-    __param(0, (0, common_1.Param)('email')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], LogsController.prototype, "findByEmail", null);
 __decorate([
     (0, common_1.Get)('employee/:id'),
     __param(0, (0, common_1.Param)('id')),
@@ -43,6 +40,20 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], LogsController.prototype, "findByEmployeeId", null);
+__decorate([
+    (0, common_1.Get)('tenant/:tenantId'),
+    __param(0, (0, common_1.Param)('tenantId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], LogsController.prototype, "findByTenant", null);
+__decorate([
+    (0, common_1.Get)(':email'),
+    __param(0, (0, common_1.Param)('email')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], LogsController.prototype, "findByEmail", null);
 exports.LogsController = LogsController = __decorate([
     (0, common_1.Controller)('logs'),
     __metadata("design:paramtypes", [logs_service_1.LogsService])

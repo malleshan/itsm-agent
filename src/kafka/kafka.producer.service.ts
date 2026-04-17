@@ -6,7 +6,8 @@ import { KAFKA_CLIENT } from './kafka.constants';
 export interface EmployeeEvent {
   employeeId: string;
   tenantId: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   role: string;
   department?: string;
@@ -31,7 +32,7 @@ export class KafkaProducerService implements OnModuleInit {
     } catch (err) {
       this.logger.warn(
         `Kafka producer could not connect: ${err.message}. ` +
-        `Events will be dropped until the broker is available.`,
+          `Events will be dropped until the broker is available.`,
       );
     }
   }
@@ -41,10 +42,8 @@ export class KafkaProducerService implements OnModuleInit {
       this.logger.warn(`Kafka unavailable — skipping onboarded event for ${payload.email}`);
       return;
     }
-
     const topic = this.config.get<string>('kafka.topics.onboarded');
     this.logger.log(`Publishing to [${topic}]: ${payload.email} onboarded`);
-
     await this.kafkaClient
       .emit(topic, { key: payload.employeeId, value: JSON.stringify(payload) })
       .toPromise();
@@ -55,10 +54,8 @@ export class KafkaProducerService implements OnModuleInit {
       this.logger.warn(`Kafka unavailable — skipping offboarded event for ${payload.email}`);
       return;
     }
-
     const topic = this.config.get<string>('kafka.topics.offboarded');
     this.logger.log(`Publishing to [${topic}]: ${payload.email} offboarded`);
-
     await this.kafkaClient
       .emit(topic, { key: payload.employeeId, value: JSON.stringify(payload) })
       .toPromise();

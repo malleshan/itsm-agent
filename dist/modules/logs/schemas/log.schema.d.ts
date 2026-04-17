@@ -4,10 +4,16 @@ export declare enum LogStatus {
     SUCCESS = "SUCCESS",
     FAILED = "FAILED"
 }
+export declare enum LogAction {
+    PROVISION = "PROVISION",
+    DEPROVISION = "DEPROVISION"
+}
 export declare class Log {
     employeeId: string;
+    tenantId: string;
     email: string;
     tool: string;
+    action: LogAction;
     status: LogStatus;
     message: string;
 }

@@ -1,1 +1,1 @@
-export declare function generateCompanyEmail(name: string, domain?: string): string;
+export declare function generateBaseEmail(firstName: string, lastName: string, domain?: string): string;

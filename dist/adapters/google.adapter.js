@@ -13,34 +13,44 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GoogleAdapter = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
+const axios_1 = require("axios");
 let GoogleAdapter = GoogleAdapter_1 = class GoogleAdapter {
     constructor(config) {
         this.config = config;
         this.logger = new common_1.Logger(GoogleAdapter_1.name);
     }
-    async createUser(email, password) {
-        this.logger.log(`Google: creating user ${email}`);
+    resolveToken(credentials) {
+        return credentials?.google?.accessToken ?? this.config.get('google.accessToken');
+    }
+    async inviteUser(email, credentials, password) {
+        const accessToken = this.resolveToken(credentials);
         const [localPart] = email.split('@');
         const [firstName, lastName = 'User'] = localPart.split('.');
-        const payload = {
+        this.logger.log(`Google Workspace: creating user ${email}`);
+        if (!accessToken) {
+            this.logger.warn(`Google Workspace: no access token available — creation of ${email} skipped (configure google.accessToken)`);
+            return;
+        }
+        await axios_1.default.post('https://admin.googleapis.com/admin/directory/v1/users', {
             primaryEmail: email,
-            password,
-            name: {
-                givenName: firstName,
-                familyName: lastName,
-            },
+            password: password ?? 'ChangeMe@123!',
+            name: { givenName: firstName, familyName: lastName },
             changePasswordAtNextLogin: true,
-        };
-        this.logger.debug(`Google Workspace payload: ${JSON.stringify(payload)}`);
-        this.logger.log(`Google: user ${email} created (simulated)`);
+        }, { headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' } });
+        this.logger.log(`Google Workspace: user ${email} created`);
     }
-    async suspendUser(email) {
-        this.logger.log(`Google: suspending user ${email}`);
-        this.logger.log(`Google: user ${email} suspended (simulated)`);
+    async removeUser(email, credentials) {
+        const accessToken = this.resolveToken(credentials);
+        this.logger.log(`Google Workspace: suspending user ${email}`);
+        if (!accessToken) {
+            this.logger.warn(`Google Workspace: no access token — suspension of ${email} skipped`);
+            return;
+        }
+        await axios_1.default.patch(`https://admin.googleapis.com/admin/directory/v1/users/${encodeURIComponent(email)}`, { suspended: true }, { headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' } });
+        this.logger.log(`Google Workspace: user ${email} suspended`);
     }
-    async deleteUser(email) {
-        this.logger.log(`Google: deleting user ${email}`);
-        this.logger.log(`Google: user ${email} deleted (simulated)`);
+    async assignRoleOrAccess(email, role, credentials) {
+        this.logger.log(`Google Workspace: OU/group assignment for ${email} (role: ${role}) — implement via Admin SDK Groups API`);
     }
 };
 exports.GoogleAdapter = GoogleAdapter;

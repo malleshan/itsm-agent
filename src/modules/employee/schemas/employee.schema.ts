@@ -14,6 +14,13 @@ export class Employee {
   tenantId: string;
 
   @Prop({ required: true })
+  firstName: string;
+
+  @Prop({ required: true })
+  lastName: string;
+
+  /** Stored as firstName + ' ' + lastName for display convenience. */
+  @Prop({ required: true })
   name: string;
 
   @Prop({ required: true, unique: true })

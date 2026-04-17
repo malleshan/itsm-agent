@@ -7,35 +7,61 @@ const microservices_1 = require("@nestjs/microservices");
 const app_module_1 = require("./app.module");
 const http_exception_filter_1 = require("./common/filters/http-exception.filter");
 const logging_interceptor_1 = require("./common/interceptors/logging.interceptor");
-const logger = new common_1.Logger('Bootstrap');
+const winston_logger_1 = require("./utils/winston.logger");
+function printBanner(port, broker, env, kafkaOn) {
+    const W = 51;
+    const pad = (s) => s.padEnd(W - 2);
+    const row = (s) => `  ║ ${pad(s)} ║`;
+    const top = `  ╔${'═'.repeat(W)}╗`;
+    const divider = `  ╠${'═'.repeat(W)}╣`;
+    const bottom = `  ╚${'═'.repeat(W)}╝`;
+    console.log('\n' + [
+        top,
+        row('     ITSM Automation Agent   v1.0.0'),
+        divider,
+        row(`  HTTP     ->  http://localhost:${port}`),
+        row(`  Kafka    ->  ${kafkaOn ? broker : broker + ' (DISABLED)'}`),
+        row(`  MongoDB  ->  Atlas (Connected)`),
+        row(`  Logs     ->  ./logs/application-<date>.log`),
+        row(`  Env      ->  ${env}`),
+        bottom,
+    ].join('\n') + '\n');
+}
 async function bootstrap() {
-    const app = await core_1.NestFactory.create(app_module_1.AppModule);
-    app.connectMicroservice({
-        transport: microservices_1.Transport.KAFKA,
-        options: {
-            client: {
-                clientId: process.env.KAFKA_CLIENT_ID || 'itsm-consumer',
-                brokers: [process.env.KAFKA_BROKER || 'localhost:9092'],
+    const winstonLogger = new winston_logger_1.WinstonLoggerService();
+    const app = await core_1.NestFactory.create(app_module_1.AppModule, { logger: winstonLogger });
+    const kafkaEnabled = process.env.KAFKA_ENABLED !== 'false';
+    if (kafkaEnabled) {
+        app.connectMicroservice({
+            transport: microservices_1.Transport.KAFKA,
+            options: {
+                client: {
+                    clientId: process.env.KAFKA_CLIENT_ID || 'itsm-consumer',
+                    brokers: [process.env.KAFKA_BROKER || 'localhost:9092'],
+                    retry: { retries: 3 },
+                },
+                consumer: {
+                    groupId: process.env.KAFKA_CONSUMER_GROUP_ID || 'itsm-consumer-group',
+                },
             },
-            consumer: {
-                groupId: process.env.KAFKA_CONSUMER_GROUP_ID || 'itsm-consumer-group',
-            },
-        },
-    });
+        });
+        try {
+            await app.startAllMicroservices();
+            winstonLogger.log(`Kafka consumer started on ${process.env.KAFKA_BROKER || 'localhost:9092'}`, 'Bootstrap');
+        }
+        catch (err) {
+            winstonLogger.warn(`Kafka broker unreachable (${err.message}). HTTP server starting without Kafka consumer.`, 'Bootstrap');
+        }
+    }
+    else {
+        winstonLogger.warn('KAFKA_ENABLED=false — Kafka consumer disabled. Use POST /provisioning/trigger for direct testing.', 'Bootstrap');
+    }
     app.useGlobalPipes(new common_1.ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
     app.useGlobalFilters(new http_exception_filter_1.HttpExceptionFilter());
     app.useGlobalInterceptors(new logging_interceptor_1.LoggingInterceptor());
-    try {
-        await app.startAllMicroservices();
-        logger.log(`Kafka consumer connected to ${process.env.KAFKA_BROKER || 'localhost:9092'}`);
-    }
-    catch (err) {
-        logger.warn(`Kafka broker unavailable (${err.message}). ` +
-            `HTTP server will start without Kafka — events will be retried on publish.`);
-    }
-    const port = process.env.PORT || 3000;
+    const port = process.env.PORT || 1000;
     await app.listen(port);
-    logger.log(`ITSM Agent running on http://localhost:${port}`);
+    printBanner(port, process.env.KAFKA_BROKER || 'localhost:9092', process.env.NODE_ENV || 'development', kafkaEnabled);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

@@ -17,12 +17,66 @@ declare const _default: () => {
             offboarded: string;
         };
     };
+    smtp: {
+        host: string;
+        port: number;
+        secure: boolean;
+        user: string;
+        pass: string;
+        from: string;
+    };
     github: {
         org: string;
         token: string;
     };
     slack: {
         botToken: string;
+    };
+    google: {
+        accessToken: string;
+    };
+    jira: {
+        host: string;
+        email: string;
+        apiToken: string;
+        projectKey: string;
+    };
+    salesforce: {
+        instanceUrl: string;
+        accessToken: string;
+        defaultProfileId: string;
+    };
+    microsoft365: {
+        tenantId: string;
+        clientId: string;
+        clientSecret: string;
+        domain: string;
+    };
+    zoom: {
+        accountId: string;
+        clientId: string;
+        clientSecret: string;
+    };
+    servicenow: {
+        instance: string;
+        username: string;
+        password: string;
+    };
+    sap: {
+        scimBaseUrl: string;
+        clientId: string;
+        clientSecret: string;
+    };
+    redis: {
+        host: string;
+        port: number;
+        password: string;
+    };
+    openai: {
+        apiKey: string;
+    };
+    encryption: {
+        key: string;
     };
     company: {
         emailDomain: string;

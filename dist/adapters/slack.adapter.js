@@ -19,30 +19,37 @@ let SlackAdapter = SlackAdapter_1 = class SlackAdapter {
         this.config = config;
         this.logger = new common_1.Logger(SlackAdapter_1.name);
     }
-    get headers() {
+    token(c) {
+        return c?.slack?.botToken ?? this.config.get('slack.botToken');
+    }
+    headers(c) {
         return {
-            Authorization: `Bearer ${this.config.get('slack.botToken')}`,
+            Authorization: `Bearer ${this.token(c)}`,
             'Content-Type': 'application/json',
         };
     }
-    async createUser(email) {
+    async inviteUser(email, credentials) {
         this.logger.log(`Slack: inviting ${email}`);
-        const response = await axios_1.default.post('https://slack.com/api/users.admin.invite', { email }, { headers: this.headers });
-        if (!response.data?.ok) {
-            throw new Error(`Slack invite failed: ${response.data?.error || 'unknown error'}`);
+        const res = await axios_1.default.post('https://slack.com/api/users.admin.invite', { email }, { headers: this.headers(credentials) });
+        if (!res.data?.ok) {
+            throw new Error(`Slack invite failed: ${res.data?.error ?? 'unknown'}`);
         }
     }
-    async deactivateUser(email) {
-        this.logger.log(`Slack: deactivating user with email ${email}`);
-        const lookupRes = await axios_1.default.get(`https://slack.com/api/users.lookupByEmail?email=${encodeURIComponent(email)}`, { headers: this.headers });
+    async removeUser(email, credentials) {
+        this.logger.log(`Slack: deactivating ${email}`);
+        const headers = this.headers(credentials);
+        const lookupRes = await axios_1.default.get(`https://slack.com/api/users.lookupByEmail?email=${encodeURIComponent(email)}`, { headers });
         if (!lookupRes.data?.ok) {
             throw new Error(`Slack lookup failed: ${lookupRes.data?.error}`);
         }
         const userId = lookupRes.data.user.id;
-        const deactivateRes = await axios_1.default.post('https://slack.com/api/users.admin.setInactive', { user: userId }, { headers: this.headers });
+        const deactivateRes = await axios_1.default.post('https://slack.com/api/users.admin.setInactive', { user: userId }, { headers });
         if (!deactivateRes.data?.ok) {
             throw new Error(`Slack deactivation failed: ${deactivateRes.data?.error}`);
         }
+    }
+    async assignRoleOrAccess(email, role, _credentials) {
+        this.logger.log(`Slack: channel membership assignment for ${email} (role: ${role})`);
     }
 };
 exports.SlackAdapter = SlackAdapter;

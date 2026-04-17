@@ -16,37 +16,104 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProvisioningController = void 0;
 const common_1 = require("@nestjs/common");
 const microservices_1 = require("@nestjs/microservices");
+const class_validator_1 = require("class-validator");
 const provisioning_service_1 = require("./provisioning.service");
+class TriggerProvisionDto {
+}
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], TriggerProvisionDto.prototype, "employeeId", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], TriggerProvisionDto.prototype, "tenantId", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], TriggerProvisionDto.prototype, "firstName", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], TriggerProvisionDto.prototype, "lastName", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], TriggerProvisionDto.prototype, "email", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], TriggerProvisionDto.prototype, "role", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], TriggerProvisionDto.prototype, "department", void 0);
 let ProvisioningController = ProvisioningController_1 = class ProvisioningController {
     constructor(provisioningService) {
         this.provisioningService = provisioningService;
         this.logger = new common_1.Logger(ProvisioningController_1.name);
     }
+    async triggerProvision(dto) {
+        this.logger.log(`[HTTP-TRIGGER] provision → ${dto.email}`);
+        await this.provisioningService.provisionEmployee(dto);
+        return {
+            message: `Provisioning triggered for ${dto.firstName} ${dto.lastName}`,
+            email: dto.email,
+            role: dto.role,
+        };
+    }
+    async triggerDeprovision(dto) {
+        this.logger.log(`[HTTP-TRIGGER] deprovision → ${dto.email}`);
+        await this.provisioningService.deprovisionEmployee(dto);
+        return {
+            message: `De-provisioning triggered for ${dto.firstName} ${dto.lastName}`,
+            email: dto.email,
+        };
+    }
     async handleEmployeeOnboarded(message, context) {
         const event = this.parsePayload(message);
-        this.logger.log(`[Kafka] itsm.employee.onboarded → ${event.email}`);
+        this.logger.log(`[Kafka] onboarded → ${event.email} (tenant: ${event.tenantId})`);
         await this.provisioningService.provisionEmployee(event);
         const { offset } = context.getMessage();
-        const partition = context.getPartition();
-        const topic = context.getTopic();
-        this.logger.debug(`Committed offset ${offset} on ${topic}[${partition}]`);
+        this.logger.debug(`Committed offset ${offset} on ${context.getTopic()}[${context.getPartition()}]`);
     }
     async handleEmployeeOffboarded(message, context) {
         const event = this.parsePayload(message);
-        this.logger.log(`[Kafka] itsm.employee.offboarded → ${event.email}`);
+        this.logger.log(`[Kafka] offboarded → ${event.email} (tenant: ${event.tenantId})`);
         await this.provisioningService.deprovisionEmployee(event);
     }
     parsePayload(message) {
-        if (typeof message === 'string') {
+        if (typeof message === 'string')
             return JSON.parse(message);
-        }
-        if (message?.value && typeof message.value === 'string') {
+        if (message?.value && typeof message.value === 'string')
             return JSON.parse(message.value);
-        }
         return message;
     }
 };
 exports.ProvisioningController = ProvisioningController;
+__decorate([
+    (0, common_1.Post)('trigger'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [TriggerProvisionDto]),
+    __metadata("design:returntype", Promise)
+], ProvisioningController.prototype, "triggerProvision", null);
+__decorate([
+    (0, common_1.Post)('trigger/offboard'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [TriggerProvisionDto]),
+    __metadata("design:returntype", Promise)
+], ProvisioningController.prototype, "triggerDeprovision", null);
 __decorate([
     (0, microservices_1.EventPattern)('itsm.employee.onboarded'),
     __param(0, (0, microservices_1.Payload)()),
@@ -64,7 +131,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ProvisioningController.prototype, "handleEmployeeOffboarded", null);
 exports.ProvisioningController = ProvisioningController = ProvisioningController_1 = __decorate([
-    (0, common_1.Controller)(),
+    (0, common_1.Controller)('provisioning'),
     __metadata("design:paramtypes", [provisioning_service_1.ProvisioningService])
 ], ProvisioningController);
 //# sourceMappingURL=provisioning.controller.js.map

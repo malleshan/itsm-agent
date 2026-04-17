@@ -13,6 +13,7 @@ const employee_schema_1 = require("./schemas/employee.schema");
 const employee_service_1 = require("./employee.service");
 const employee_controller_1 = require("./employee.controller");
 const kafka_module_1 = require("../../kafka/kafka.module");
+const provisioning_module_1 = require("../provisioning/provisioning.module");
 let EmployeeModule = class EmployeeModule {
 };
 exports.EmployeeModule = EmployeeModule;
@@ -21,6 +22,7 @@ exports.EmployeeModule = EmployeeModule = __decorate([
         imports: [
             mongoose_1.MongooseModule.forFeature([{ name: employee_schema_1.Employee.name, schema: employee_schema_1.EmployeeSchema }]),
             kafka_module_1.KafkaModule,
+            (0, common_1.forwardRef)(() => provisioning_module_1.ProvisioningModule),
         ],
         controllers: [employee_controller_1.EmployeeController],
         providers: [employee_service_1.EmployeeService],

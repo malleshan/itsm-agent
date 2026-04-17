@@ -23,13 +23,12 @@ __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateEmployeeDto.prototype, "name", void 0);
+], CreateEmployeeDto.prototype, "firstName", void 0);
 __decorate([
-    (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], CreateEmployeeDto.prototype, "email", void 0);
+], CreateEmployeeDto.prototype, "lastName", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),

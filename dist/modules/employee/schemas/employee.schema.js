@@ -26,6 +26,14 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
+], Employee.prototype, "firstName", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", String)
+], Employee.prototype, "lastName", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", String)
 ], Employee.prototype, "name", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true, unique: true }),

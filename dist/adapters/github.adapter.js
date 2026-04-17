@@ -19,24 +19,29 @@ let GithubAdapter = GithubAdapter_1 = class GithubAdapter {
         this.config = config;
         this.logger = new common_1.Logger(GithubAdapter_1.name);
     }
-    get org() {
-        return this.config.get('github.org');
+    org(c) {
+        return c?.github?.org ?? this.config.get('github.org');
     }
-    get headers() {
+    headers(c) {
         return {
-            Authorization: `Bearer ${this.config.get('github.token')}`,
+            Authorization: `Bearer ${c?.github?.token ?? this.config.get('github.token')}`,
             Accept: 'application/vnd.github+json',
             'X-GitHub-Api-Version': '2022-11-28',
         };
     }
-    async inviteUser(email) {
-        this.logger.log(`GitHub: inviting ${email} to org "${this.org}"`);
-        await axios_1.default.post(`https://api.github.com/orgs/${this.org}/invitations`, { email }, { headers: this.headers });
+    async inviteUser(email, credentials) {
+        const org = this.org(credentials);
+        this.logger.log(`GitHub: inviting ${email} to org "${org}"`);
+        await axios_1.default.post(`https://api.github.com/orgs/${org}/invitations`, { email }, { headers: this.headers(credentials) });
     }
-    async removeUser(email) {
+    async removeUser(email, credentials) {
+        const org = this.org(credentials);
         const username = email.split('@')[0];
-        this.logger.log(`GitHub: removing member "${username}" from org "${this.org}"`);
-        await axios_1.default.delete(`https://api.github.com/orgs/${this.org}/members/${username}`, { headers: this.headers });
+        this.logger.log(`GitHub: removing member "${username}" from org "${org}"`);
+        await axios_1.default.delete(`https://api.github.com/orgs/${org}/members/${username}`, { headers: this.headers(credentials) });
+    }
+    async assignRoleOrAccess(email, role, _credentials) {
+        this.logger.log(`GitHub: team role assignment for ${email} (role: ${role}) — manage via Teams API`);
     }
 };
 exports.GithubAdapter = GithubAdapter;

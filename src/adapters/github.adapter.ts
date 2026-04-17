@@ -1,61 +1,61 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { AdapterCredentials, IAdapter } from '../common/interfaces/adapter.interface';
 
 /**
- * GitHub Adapter
- *
- * Handles organisation membership via the GitHub REST API.
+ * GitHub Adapter — manages org membership via REST API v3.
  * Docs: https://docs.github.com/en/rest/orgs/members
  *
- * Test credentials: GITHUB_ORG=test-org, GITHUB_TOKEN=ghp_test_token_placeholder_123456789
+ * NOTE: GitHub does not create accounts — it sends an invitation email.
  */
 @Injectable()
-export class GithubAdapter {
+export class GithubAdapter implements IAdapter {
   private readonly logger = new Logger(GithubAdapter.name);
 
   constructor(private readonly config: ConfigService) {}
 
-  private get org(): string {
-    return this.config.get<string>('github.org');
+  private org(c?: AdapterCredentials) {
+    return c?.github?.org ?? this.config.get<string>('github.org');
   }
 
-  private get headers() {
+  private headers(c?: AdapterCredentials) {
     return {
-      Authorization: `Bearer ${this.config.get<string>('github.token')}`,
+      Authorization: `Bearer ${c?.github?.token ?? this.config.get<string>('github.token')}`,
       Accept: 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28',
     };
   }
 
-  /**
-   * Invite a user to the organisation by email.
-   * POST /orgs/{org}/invitations
-   */
-  async inviteUser(email: string): Promise<void> {
-    this.logger.log(`GitHub: inviting ${email} to org "${this.org}"`);
+  /** POST /orgs/{org}/invitations */
+  async inviteUser(email: string, credentials?: AdapterCredentials): Promise<void> {
+    const org = this.org(credentials);
+    this.logger.log(`GitHub: inviting ${email} to org "${org}"`);
 
     await axios.post(
-      `https://api.github.com/orgs/${this.org}/invitations`,
+      `https://api.github.com/orgs/${org}/invitations`,
       { email },
-      { headers: this.headers },
+      { headers: this.headers(credentials) },
     );
   }
 
-  /**
-   * Remove a member from the organisation.
-   * DELETE /orgs/{org}/members/{username}
-   *
-   * GitHub uses usernames rather than emails. In production, resolve the
-   * username from a stored mapping. Here we derive it from the email local-part.
-   */
-  async removeUser(email: string): Promise<void> {
+  /** DELETE /orgs/{org}/members/{username} */
+  async removeUser(email: string, credentials?: AdapterCredentials): Promise<void> {
+    const org = this.org(credentials);
     const username = email.split('@')[0];
-    this.logger.log(`GitHub: removing member "${username}" from org "${this.org}"`);
+    this.logger.log(`GitHub: removing member "${username}" from org "${org}"`);
 
     await axios.delete(
-      `https://api.github.com/orgs/${this.org}/members/${username}`,
-      { headers: this.headers },
+      `https://api.github.com/orgs/${org}/members/${username}`,
+      { headers: this.headers(credentials) },
     );
+  }
+
+  async assignRoleOrAccess(
+    email: string,
+    role: string,
+    _credentials?: AdapterCredentials,
+  ): Promise<void> {
+    this.logger.log(`GitHub: team role assignment for ${email} (role: ${role}) — manage via Teams API`);
   }
 }

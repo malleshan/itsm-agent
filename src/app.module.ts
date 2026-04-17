@@ -6,18 +6,19 @@ import { EmployeeModule } from './modules/employee/employee.module';
 import { LogsModule } from './modules/logs/logs.module';
 import { ProvisioningModule } from './modules/provisioning/provisioning.module';
 import { KafkaModule } from './kafka/kafka.module';
+import { AppCacheModule } from './cache/cache.module';
+import { ItsmIntegrationsModule } from './modules/itsm/itsm-integrations.module';
+import { AiRecommendationModule } from './modules/ai-recommendation/ai-recommendation.module';
+import { TenantConfigModule } from './modules/tenant-config/tenant-config.module';
 
 @Module({
   imports: [
-    // Config — global, reads .env automatically
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
       envFilePath: '.env',
     }),
 
-    // MongoDB — read directly from process.env so the value is always fresh
-    // regardless of ConfigService initialisation order.
     MongooseModule.forRoot(process.env.MONGO_URI, {
       connectionFactory: (connection) => {
         connection.on('connected', () =>
@@ -30,10 +31,13 @@ import { KafkaModule } from './kafka/kafka.module';
       },
     }),
 
-    // Feature modules
+    AppCacheModule,
     KafkaModule,
     EmployeeModule,
     LogsModule,
+    ItsmIntegrationsModule,
+    AiRecommendationModule,
+    TenantConfigModule,
     ProvisioningModule,
   ],
 })

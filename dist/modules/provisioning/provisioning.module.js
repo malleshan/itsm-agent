@@ -12,14 +12,18 @@ const provisioning_service_1 = require("./provisioning.service");
 const provisioning_controller_1 = require("./provisioning.controller");
 const logs_module_1 = require("../logs/logs.module");
 const adapters_module_1 = require("../../adapters/adapters.module");
+const email_module_1 = require("../email/email.module");
+const itsm_integrations_module_1 = require("../itsm/itsm-integrations.module");
+const ai_recommendation_module_1 = require("../ai-recommendation/ai-recommendation.module");
 let ProvisioningModule = class ProvisioningModule {
 };
 exports.ProvisioningModule = ProvisioningModule;
 exports.ProvisioningModule = ProvisioningModule = __decorate([
     (0, common_1.Module)({
-        imports: [logs_module_1.LogsModule, adapters_module_1.AdaptersModule],
+        imports: [logs_module_1.LogsModule, adapters_module_1.AdaptersModule, email_module_1.EmailModule, itsm_integrations_module_1.ItsmIntegrationsModule, ai_recommendation_module_1.AiRecommendationModule],
         controllers: [provisioning_controller_1.ProvisioningController],
         providers: [provisioning_service_1.ProvisioningService],
+        exports: [provisioning_service_1.ProvisioningService],
     })
 ], ProvisioningModule);
 //# sourceMappingURL=provisioning.module.js.map

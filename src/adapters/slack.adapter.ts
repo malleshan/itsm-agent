@@ -1,77 +1,72 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { AdapterCredentials, IAdapter } from '../common/interfaces/adapter.interface';
 
 /**
- * Slack Adapter
- *
- * Provisions and de-provisions Slack users via the Web API.
- * Docs: https://api.slack.com/methods/admin.users.invite
- *
- * Test credentials: SLACK_BOT_TOKEN=xoxb-test-000000000000-000000000000-test_slack_token
+ * Slack Adapter — manages Slack workspace users via the Web API.
+ * Docs: https://api.slack.com/methods
  */
 @Injectable()
-export class SlackAdapter {
+export class SlackAdapter implements IAdapter {
   private readonly logger = new Logger(SlackAdapter.name);
 
   constructor(private readonly config: ConfigService) {}
 
-  private get headers() {
+  private token(c?: AdapterCredentials) {
+    return c?.slack?.botToken ?? this.config.get<string>('slack.botToken');
+  }
+
+  private headers(c?: AdapterCredentials) {
     return {
-      Authorization: `Bearer ${this.config.get<string>('slack.botToken')}`,
+      Authorization: `Bearer ${this.token(c)}`,
       'Content-Type': 'application/json',
     };
   }
 
-  /**
-   * Invite a user to the Slack workspace.
-   * POST https://slack.com/api/users.admin.invite
-   */
-  async createUser(email: string): Promise<void> {
+  async inviteUser(email: string, credentials?: AdapterCredentials): Promise<void> {
     this.logger.log(`Slack: inviting ${email}`);
 
-    const response = await axios.post(
+    const res = await axios.post(
       'https://slack.com/api/users.admin.invite',
       { email },
-      { headers: this.headers },
+      { headers: this.headers(credentials) },
     );
 
-    if (!response.data?.ok) {
-      throw new Error(`Slack invite failed: ${response.data?.error || 'unknown error'}`);
+    if (!res.data?.ok) {
+      throw new Error(`Slack invite failed: ${res.data?.error ?? 'unknown'}`);
     }
   }
 
-  /**
-   * Deactivate (disable) a Slack user.
-   * POST https://slack.com/api/users.admin.setInactive
-   *
-   * Note: Slack identifies users by user_id. In production resolve the
-   * user_id from email via users.lookupByEmail before calling this.
-   */
-  async deactivateUser(email: string): Promise<void> {
-    this.logger.log(`Slack: deactivating user with email ${email}`);
+  async removeUser(email: string, credentials?: AdapterCredentials): Promise<void> {
+    this.logger.log(`Slack: deactivating ${email}`);
+    const headers = this.headers(credentials);
 
-    // Step 1 — resolve user_id from email
     const lookupRes = await axios.get(
       `https://slack.com/api/users.lookupByEmail?email=${encodeURIComponent(email)}`,
-      { headers: this.headers },
+      { headers },
     );
-
     if (!lookupRes.data?.ok) {
       throw new Error(`Slack lookup failed: ${lookupRes.data?.error}`);
     }
 
-    const userId = lookupRes.data.user.id;
+    const userId: string = lookupRes.data.user.id;
 
-    // Step 2 — deactivate
     const deactivateRes = await axios.post(
       'https://slack.com/api/users.admin.setInactive',
       { user: userId },
-      { headers: this.headers },
+      { headers },
     );
-
     if (!deactivateRes.data?.ok) {
       throw new Error(`Slack deactivation failed: ${deactivateRes.data?.error}`);
     }
+  }
+
+  async assignRoleOrAccess(
+    email: string,
+    role: string,
+    _credentials?: AdapterCredentials,
+  ): Promise<void> {
+    this.logger.log(`Slack: channel membership assignment for ${email} (role: ${role})`);
   }
 }

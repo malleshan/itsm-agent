@@ -15,6 +15,10 @@ const employee_module_1 = require("./modules/employee/employee.module");
 const logs_module_1 = require("./modules/logs/logs.module");
 const provisioning_module_1 = require("./modules/provisioning/provisioning.module");
 const kafka_module_1 = require("./kafka/kafka.module");
+const cache_module_1 = require("./cache/cache.module");
+const itsm_integrations_module_1 = require("./modules/itsm/itsm-integrations.module");
+const ai_recommendation_module_1 = require("./modules/ai-recommendation/ai-recommendation.module");
+const tenant_config_module_1 = require("./modules/tenant-config/tenant-config.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -33,9 +37,13 @@ exports.AppModule = AppModule = __decorate([
                     return connection;
                 },
             }),
+            cache_module_1.AppCacheModule,
             kafka_module_1.KafkaModule,
             employee_module_1.EmployeeModule,
             logs_module_1.LogsModule,
+            itsm_integrations_module_1.ItsmIntegrationsModule,
+            ai_recommendation_module_1.AiRecommendationModule,
+            tenant_config_module_1.TenantConfigModule,
             provisioning_module_1.ProvisioningModule,
         ],
     })

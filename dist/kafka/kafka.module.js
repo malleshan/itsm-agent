@@ -29,6 +29,8 @@ exports.KafkaModule = KafkaModule = __decorate([
                             client: {
                                 clientId: config.get('kafka.clientId'),
                                 brokers: [config.get('kafka.broker')],
+                                retry: { retries: 2 },
+                                connectionTimeout: 3000,
                             },
                             producer: {
                                 allowAutoTopicCreation: true,

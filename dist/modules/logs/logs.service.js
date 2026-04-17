@@ -25,7 +25,7 @@ let LogsService = LogsService_1 = class LogsService {
     }
     async create(dto) {
         const log = await this.logModel.create(dto);
-        this.logger.log(`[${dto.status}] ${dto.tool} → ${dto.email}: ${dto.message}`);
+        this.logger.log(`[${dto.action}][${dto.status}] ${dto.tool} → ${dto.email}: ${dto.message}`);
         return log;
     }
     async findByEmail(email) {
@@ -33,6 +33,9 @@ let LogsService = LogsService_1 = class LogsService {
     }
     async findByEmployeeId(employeeId) {
         return this.logModel.find({ employeeId }).sort({ createdAt: -1 }).exec();
+    }
+    async findByTenantId(tenantId) {
+        return this.logModel.find({ tenantId }).sort({ createdAt: -1 }).exec();
     }
 };
 exports.LogsService = LogsService;

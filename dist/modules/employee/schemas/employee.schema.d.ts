@@ -6,6 +6,8 @@ export declare enum EmployeeStatus {
 }
 export declare class Employee {
     tenantId: string;
+    firstName: string;
+    lastName: string;
     name: string;
     email: string;
     role: string;

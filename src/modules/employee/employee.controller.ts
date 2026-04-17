@@ -18,10 +18,7 @@ export class EmployeeController {
 
   constructor(private readonly employeeService: EmployeeService) {}
 
-  /**
-   * POST /employees
-   * Onboard a new employee — creates the record and triggers provisioning via Kafka.
-   */
+  /** POST /employees — onboard and trigger provisioning via Kafka. */
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateEmployeeDto) {
@@ -36,28 +33,19 @@ export class EmployeeController {
     };
   }
 
-  /**
-   * GET /employees
-   * List all employees.
-   */
+  /** GET /employees */
   @Get()
   async findAll() {
     return this.employeeService.findAll();
   }
 
-  /**
-   * GET /employees/:id
-   * Retrieve a single employee by ID.
-   */
+  /** GET /employees/:id */
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.employeeService.findById(id);
   }
 
-  /**
-   * PATCH /employees/:id/offboard
-   * Offboard an employee — marks them OFFBOARDED and triggers de-provisioning via Kafka.
-   */
+  /** PATCH /employees/:id/offboard — triggers de-provisioning via Kafka. */
   @Patch(':id/offboard')
   async offboard(@Param('id') id: string) {
     const employee = await this.employeeService.offboard(id);

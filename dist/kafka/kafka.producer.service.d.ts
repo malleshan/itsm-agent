@@ -4,7 +4,8 @@ import { ConfigService } from '@nestjs/config';
 export interface EmployeeEvent {
     employeeId: string;
     tenantId: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     role: string;
     department?: string;

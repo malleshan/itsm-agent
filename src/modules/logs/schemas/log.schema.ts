@@ -8,23 +8,38 @@ export enum LogStatus {
   FAILED = 'FAILED',
 }
 
-@Schema({ timestamps: true })
+export enum LogAction {
+  PROVISION = 'PROVISION',
+  DEPROVISION = 'DEPROVISION',
+}
+
+@Schema({ collection: 'itsm_provisioning_logs', timestamps: true })
 export class Log {
-  @Prop()
+  @Prop({ required: true, index: true })
   employeeId: string;
 
-  @Prop()
+  @Prop({ required: true, index: true })
+  tenantId: string;
+
+  @Prop({ required: true })
   email: string;
 
-  /** Third-party tool name: github | slack | google */
-  @Prop()
+  /** Third-party tool: github | slack | google | jira | salesforce */
+  @Prop({ required: true })
   tool: string;
 
-  @Prop({ enum: LogStatus })
+  @Prop({ required: true, enum: Object.values(LogAction) })
+  action: LogAction;
+
+  @Prop({ required: true, enum: Object.values(LogStatus) })
   status: LogStatus;
 
-  @Prop()
+  @Prop({ required: true })
   message: string;
 }
 
 export const LogSchema = SchemaFactory.createForClass(Log);
+
+// Compound index for fast lookups by tenant + employee
+LogSchema.index({ tenantId: 1, employeeId: 1 });
+LogSchema.index({ tenantId: 1, email: 1 });

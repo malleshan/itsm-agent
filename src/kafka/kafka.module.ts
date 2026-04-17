@@ -17,6 +17,8 @@ import { KAFKA_CLIENT } from './kafka.constants';
             client: {
               clientId: config.get<string>('kafka.clientId'),
               brokers: [config.get<string>('kafka.broker')],
+              retry: { retries: 2 },        // stop retrying quickly when broker is offline
+              connectionTimeout: 3000,
             },
             producer: {
               allowAutoTopicCreation: true,

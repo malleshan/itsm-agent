@@ -1,7 +1,7 @@
 export declare class CreateEmployeeDto {
     tenantId: string;
-    name: string;
-    email?: string;
+    firstName: string;
+    lastName: string;
     role: string;
     department?: string;
 }

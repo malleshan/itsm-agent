@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
 /**
  * Generates a cryptographically random temporary password.

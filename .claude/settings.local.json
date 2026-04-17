@@ -1,7 +1,31 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(git clone *)",
+      "Read(//c/2026-projects/superpowers/**)",
+      "Bash(npm run *)",
+      "Bash(node dist/main.js)",
+      "Bash(curl -s http://localhost:3000/employees)",
+      "Bash(curl *)",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(cmd *)",
+      "Bash(npx tsc *)",
+      "Bash(rm -f *.tsbuildinfo)",
+      "Bash(rm -rf dist)",
+      "Bash(rm -f tsconfig.tsbuildinfo)",
+      "Bash(node -e \"const p = require\\('./dist/utils/password'\\); console.log\\(p.generatePassword\\(\\)\\)\")",
+      "Bash(xargs ls *)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill /PID 432 /F)",
+      "Bash(echo \"Server pid: $!\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'{len\\(d\\)} employees found'\\)\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d,indent=2\\)\\)\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'{len\\(d\\)} tenant configs'\\)\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('tenantId:', d.get\\('tenantId'\\), '| enabledTools:', d.get\\('enabledTools'\\)\\)\")",
+      "Bash(awk '{print $5}')",
+      "Bash(xargs -I{} cmd //c \"taskkill /PID {} /F\")",
+      "Bash(tail -30 C:\\\\\\\\Users\\\\\\\\MALLES~1\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\C--2026-projects-itsm-agent\\\\\\\\a031d753-ed5f-4cb9-a2df-328ceefdc66e\\\\\\\\tasks\\\\\\\\b16f2nzi6.output)"
     ]
   }
 }
