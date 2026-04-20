@@ -67,6 +67,13 @@ declare const _default: () => {
         clientId: string;
         clientSecret: string;
     };
+    zoho: {
+        clientId: string;
+        clientSecret: string;
+        refreshToken: string;
+        orgId: string;
+        accountsUrl: string;
+    };
     redis: {
         host: string;
         port: number;

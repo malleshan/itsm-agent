@@ -17,6 +17,7 @@ const microsoft365_adapter_1 = require("./microsoft365.adapter");
 const zoom_adapter_1 = require("./zoom.adapter");
 const servicenow_adapter_1 = require("./servicenow.adapter");
 const sap_adapter_1 = require("./sap.adapter");
+const zoho_adapter_1 = require("./zoho.adapter");
 let AdaptersModule = class AdaptersModule {
 };
 exports.AdaptersModule = AdaptersModule;
@@ -32,6 +33,7 @@ exports.AdaptersModule = AdaptersModule = __decorate([
             zoom_adapter_1.ZoomAdapter,
             servicenow_adapter_1.ServiceNowAdapter,
             sap_adapter_1.SapAdapter,
+            zoho_adapter_1.ZohoAdapter,
         ],
         exports: [
             github_adapter_1.GithubAdapter,
@@ -43,6 +45,7 @@ exports.AdaptersModule = AdaptersModule = __decorate([
             zoom_adapter_1.ZoomAdapter,
             servicenow_adapter_1.ServiceNowAdapter,
             sap_adapter_1.SapAdapter,
+            zoho_adapter_1.ZohoAdapter,
         ],
     })
 ], AdaptersModule);

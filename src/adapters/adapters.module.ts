@@ -8,8 +8,9 @@ import { Microsoft365Adapter } from './microsoft365.adapter';
 import { ZoomAdapter } from './zoom.adapter';
 import { ServiceNowAdapter } from './servicenow.adapter';
 import { SapAdapter } from './sap.adapter';
+import { ZohoAdapter } from './zoho.adapter';
 
-/** All 9 SaaS adapters registered and exported for DI. */
+/** All 10 SaaS adapters registered and exported for DI. */
 @Module({
   providers: [
     GithubAdapter,
@@ -21,6 +22,7 @@ import { SapAdapter } from './sap.adapter';
     ZoomAdapter,
     ServiceNowAdapter,
     SapAdapter,
+    ZohoAdapter,
   ],
   exports: [
     GithubAdapter,
@@ -32,6 +34,7 @@ import { SapAdapter } from './sap.adapter';
     ZoomAdapter,
     ServiceNowAdapter,
     SapAdapter,
+    ZohoAdapter,
   ],
 })
 export class AdaptersModule {}

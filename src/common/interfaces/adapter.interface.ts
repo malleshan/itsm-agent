@@ -8,6 +8,7 @@ export interface AdapterCredentials {
   zoom?: { accountId: string; clientId: string; clientSecret: string };
   servicenow?: { instance: string; username: string; password: string };
   sap?: { scimBaseUrl: string; clientId: string; clientSecret: string };
+  zoho?: { clientId: string; clientSecret: string; refreshToken: string; orgId: string; accountsUrl: string };
 }
 
 export interface IAdapter {

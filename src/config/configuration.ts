@@ -79,6 +79,14 @@ export default () => ({
     clientSecret: process.env.SAP_CLIENT_SECRET || '',
   },
 
+  zoho: {
+    clientId: process.env.ZOHO_CLIENT_ID || '',
+    clientSecret: process.env.ZOHO_CLIENT_SECRET || '',
+    refreshToken: process.env.ZOHO_REFRESH_TOKEN || '',
+    orgId: process.env.ZOHO_ORG_ID || '',
+    accountsUrl: process.env.ZOHO_ACCOUNTS_URL || 'https://accounts.zoho.com',
+  },
+
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT, 10) || 6379,

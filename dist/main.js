@@ -4,6 +4,7 @@ require("dotenv/config");
 const core_1 = require("@nestjs/core");
 const common_1 = require("@nestjs/common");
 const microservices_1 = require("@nestjs/microservices");
+const swagger_1 = require("@nestjs/swagger");
 const app_module_1 = require("./app.module");
 const http_exception_filter_1 = require("./common/filters/http-exception.filter");
 const logging_interceptor_1 = require("./common/interceptors/logging.interceptor");
@@ -59,6 +60,14 @@ async function bootstrap() {
     app.useGlobalPipes(new common_1.ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
     app.useGlobalFilters(new http_exception_filter_1.HttpExceptionFilter());
     app.useGlobalInterceptors(new logging_interceptor_1.LoggingInterceptor());
+    const swaggerConfig = new swagger_1.DocumentBuilder()
+        .setTitle('ITSM Automation Agent')
+        .setDescription('API for employee onboarding/offboarding across SaaS platforms (GitHub, Slack, Jira, Zoho, Salesforce, M365, Zoom, ServiceNow, SAP, Google)')
+        .setVersion('1.0.0')
+        .addBearerAuth()
+        .build();
+    const document = swagger_1.SwaggerModule.createDocument(app, swaggerConfig);
+    swagger_1.SwaggerModule.setup('api', app, document);
     const port = process.env.PORT || 1000;
     await app.listen(port);
     printBanner(port, process.env.KAFKA_BROKER || 'localhost:9092', process.env.NODE_ENV || 'development', kafkaEnabled);
