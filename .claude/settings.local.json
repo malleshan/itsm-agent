@@ -3,7 +3,27 @@
     "allow": [
       "Bash(npx tsc *)",
       "Bash(npm list *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill *)",
+      "Bash(pkill -f \"nest start\")",
+      "Bash(awk '{print $5}')",
+      "Bash(xargs -r -I{} taskkill //F //PID {})",
+      "Bash(node dist/main.js)",
+      "Bash(curl -s -X POST http://localhost:1000/employees -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(python -m json.tool)",
+      "Bash(curl -s -X POST http://localhost:1000/employees -H 'Content-Type: application/json' -d '{\"tenantId\":\"tenant-001\",\"firstName\":\"Karthik\",\"lastName\":\"Bommanal\",\"role\":\"developer\",\"department\":\"Engineering\"}')",
+      "Bash(echo \"raw: $\\(curl -s -X POST http://localhost:1000/employees -H 'Content-Type: application/json' -d '{\"tenantId\":\"tenant-001\",\"firstName\":\"Karthik\",\"lastName\":\"Bommanal\",\"role\":\"developer\",\"department\":\"Engineering\"}'\\)\")",
+      "Bash(curl -s http://localhost:1000/employees)",
+      "Bash(curl -s http://localhost:1000/employees/69e5b172235d5fb0b92ff7cb)",
+      "Bash(curl -s -X PUT http://localhost:1000/itsm/integrations -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(curl -s \"http://localhost:1000/itsm/integrations?tenantId=tenant-001\")",
+      "Bash(curl -s \"http://localhost:1000/itsm/integrations/metrics?tenantId=tenant-001\")",
+      "Bash(curl *)",
+      "Bash(mongosh *)",
+      "Bash(node *)",
+      "Bash(xargs -I{} taskkill //F //PID {} sleep 2 node dist/main.js)"
     ]
   }
 }

@@ -30,7 +30,7 @@ exports.AppModule = AppModule = __decorate([
                 load: [configuration_1.default],
                 envFilePath: '.env',
             }),
-            mongoose_1.MongooseModule.forRoot(process.env.MONGO_URI, {
+            mongoose_1.MongooseModule.forRoot(process.env.MONGO_URI || process.env.MONGO_URI_LOCAL, {
                 connectionFactory: (connection) => {
                     connection.on('connected', () => console.log('[Mongoose] Connected to MongoDB'));
                     connection.on('error', (err) => console.error('[Mongoose] Connection error:', err.message));

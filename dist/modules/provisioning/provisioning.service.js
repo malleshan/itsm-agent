@@ -21,6 +21,7 @@ const microsoft365_adapter_1 = require("../../adapters/microsoft365.adapter");
 const zoom_adapter_1 = require("../../adapters/zoom.adapter");
 const servicenow_adapter_1 = require("../../adapters/servicenow.adapter");
 const sap_adapter_1 = require("../../adapters/sap.adapter");
+const zoho_adapter_1 = require("../../adapters/zoho.adapter");
 const logs_service_1 = require("../logs/logs.service");
 const log_schema_1 = require("../logs/schemas/log.schema");
 const itsm_integrations_service_1 = require("../itsm/itsm-integrations.service");
@@ -28,7 +29,7 @@ const ai_recommendation_service_1 = require("../ai-recommendation/ai-recommendat
 const email_service_1 = require("../email/email.service");
 const password_1 = require("../../utils/password");
 let ProvisioningService = ProvisioningService_1 = class ProvisioningService {
-    constructor(logsService, itsmIntegrations, aiRecommendation, emailService, github, slack, google, jira, salesforce, microsoft365, zoom, servicenow, sap) {
+    constructor(logsService, itsmIntegrations, aiRecommendation, emailService, github, slack, google, jira, salesforce, microsoft365, zoom, servicenow, sap, zoho) {
         this.logsService = logsService;
         this.itsmIntegrations = itsmIntegrations;
         this.aiRecommendation = aiRecommendation;
@@ -42,17 +43,20 @@ let ProvisioningService = ProvisioningService_1 = class ProvisioningService {
         this.zoom = zoom;
         this.servicenow = servicenow;
         this.sap = sap;
+        this.zoho = zoho;
         this.logger = new common_1.Logger(ProvisioningService_1.name);
     }
     async provisionEmployee(event) {
         const { employeeId, tenantId, firstName, lastName, email, role, department } = event;
         const password = (0, password_1.generatePassword)();
-        const enabledTools = await this.itsmIntegrations.getEnabledTools(tenantId)
-            .then((tools) => (tools.length > 0 ? tools : ai_recommendation_service_1.ALL_TOOLS));
+        const integrations = await this.itsmIntegrations.findAllByTenant(tenantId);
+        const enabledToolNames = integrations.length > 0
+            ? integrations.filter((i) => i.enabled).map((i) => i.service)
+            : ai_recommendation_service_1.ALL_TOOLS;
+        const credentials = this.itsmIntegrations.buildCredentials(integrations);
         const tools = await this.aiRecommendation.recommendTools({
-            role, department, firstName, enabledTools,
+            role, department, firstName, enabledTools: enabledToolNames,
         });
-        const credentials = await this.itsmIntegrations.getCredentials(tenantId);
         this.logger.log(`[PROVISION] ${firstName} ${lastName} | role: ${role} | email: ${email} | tools: [${tools.join(', ')}]`);
         const results = await Promise.allSettled(tools.map((tool) => this.runProvisioning({ employeeId, tenantId, email, tool, role, credentials, password })));
         const succeeded = tools.filter((_, i) => results[i].status === 'fulfilled');
@@ -67,12 +71,14 @@ let ProvisioningService = ProvisioningService_1 = class ProvisioningService {
     }
     async deprovisionEmployee(event) {
         const { employeeId, tenantId, firstName, email, role, department } = event;
-        const enabledTools = await this.itsmIntegrations.getEnabledTools(tenantId)
-            .then((tools) => (tools.length > 0 ? tools : ai_recommendation_service_1.ALL_TOOLS));
+        const integrations = await this.itsmIntegrations.findAllByTenant(tenantId);
+        const enabledToolNames = integrations.length > 0
+            ? integrations.filter((i) => i.enabled).map((i) => i.service)
+            : ai_recommendation_service_1.ALL_TOOLS;
+        const credentials = this.itsmIntegrations.buildCredentials(integrations);
         const tools = await this.aiRecommendation.recommendTools({
-            role, department, firstName, enabledTools,
+            role, department, firstName, enabledTools: enabledToolNames,
         });
-        const credentials = await this.itsmIntegrations.getCredentials(tenantId);
         this.logger.log(`[DEPROVISION] ${firstName} | role: ${role} | email: ${email} | tools: [${tools.join(', ')}]`);
         const results = await Promise.allSettled(tools.map((tool) => this.runDeprovisioning({ employeeId, tenantId, email, tool, credentials })));
         const succeeded = tools.filter((_, i) => results[i].status === 'fulfilled');
@@ -130,6 +136,7 @@ let ProvisioningService = ProvisioningService_1 = class ProvisioningService {
             case 'zoom': return p ? this.zoom.inviteUser(email, credentials) : this.zoom.removeUser(email, credentials);
             case 'servicenow': return p ? this.servicenow.inviteUser(email, credentials) : this.servicenow.removeUser(email, credentials);
             case 'sap': return p ? this.sap.inviteUser(email, credentials) : this.sap.removeUser(email, credentials);
+            case 'zoho': return p ? this.zoho.inviteUser(email, credentials) : this.zoho.removeUser(email, credentials);
             default: this.logger.warn(`Unknown tool "${tool}" — skipping`);
         }
     }
@@ -149,6 +156,7 @@ exports.ProvisioningService = ProvisioningService = ProvisioningService_1 = __de
         microsoft365_adapter_1.Microsoft365Adapter,
         zoom_adapter_1.ZoomAdapter,
         servicenow_adapter_1.ServiceNowAdapter,
-        sap_adapter_1.SapAdapter])
+        sap_adapter_1.SapAdapter,
+        zoho_adapter_1.ZohoAdapter])
 ], ProvisioningService);
 //# sourceMappingURL=provisioning.service.js.map

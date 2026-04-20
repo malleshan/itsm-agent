@@ -31,6 +31,7 @@ function printBanner(port, broker, env, kafkaOn) {
 async function bootstrap() {
     const winstonLogger = new winston_logger_1.WinstonLoggerService();
     const app = await core_1.NestFactory.create(app_module_1.AppModule, { logger: winstonLogger });
+    app.enableCors({ origin: process.env.CORS_ORIGIN || '*', credentials: true });
     const kafkaEnabled = process.env.KAFKA_ENABLED !== 'false';
     if (kafkaEnabled) {
         app.connectMicroservice({

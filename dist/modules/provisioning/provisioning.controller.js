@@ -15,6 +15,7 @@ var ProvisioningController_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProvisioningController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const microservices_1 = require("@nestjs/microservices");
 const class_validator_1 = require("class-validator");
 const provisioning_service_1 = require("./provisioning.service");
@@ -81,10 +82,9 @@ let ProvisioningController = ProvisioningController_1 = class ProvisioningContro
         const event = this.parsePayload(message);
         this.logger.log(`[Kafka] onboarded → ${event.email} (tenant: ${event.tenantId})`);
         await this.provisioningService.provisionEmployee(event);
-        const { offset } = context.getMessage();
-        this.logger.debug(`Committed offset ${offset} on ${context.getTopic()}[${context.getPartition()}]`);
+        this.logger.debug(`Committed offset ${context.getMessage().offset} on ${context.getTopic()}[${context.getPartition()}]`);
     }
-    async handleEmployeeOffboarded(message, context) {
+    async handleEmployeeOffboarded(message, _context) {
         const event = this.parsePayload(message);
         this.logger.log(`[Kafka] offboarded → ${event.email} (tenant: ${event.tenantId})`);
         await this.provisioningService.deprovisionEmployee(event);
@@ -101,6 +101,9 @@ exports.ProvisioningController = ProvisioningController;
 __decorate([
     (0, common_1.Post)('trigger'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'Trigger employee provisioning (HTTP — no Kafka needed)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Provisioning triggered successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Validation error' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [TriggerProvisionDto]),
@@ -109,6 +112,9 @@ __decorate([
 __decorate([
     (0, common_1.Post)('trigger/offboard'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'Trigger employee de-provisioning (HTTP — no Kafka needed)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'De-provisioning triggered successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Validation error' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [TriggerProvisionDto]),
@@ -131,6 +137,8 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ProvisioningController.prototype, "handleEmployeeOffboarded", null);
 exports.ProvisioningController = ProvisioningController = ProvisioningController_1 = __decorate([
+    (0, swagger_1.ApiTags)('Provisioning'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('provisioning'),
     __metadata("design:paramtypes", [provisioning_service_1.ProvisioningService])
 ], ProvisioningController);

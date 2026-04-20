@@ -7,6 +7,7 @@ import { Microsoft365Adapter } from '../../adapters/microsoft365.adapter';
 import { ZoomAdapter } from '../../adapters/zoom.adapter';
 import { ServiceNowAdapter } from '../../adapters/servicenow.adapter';
 import { SapAdapter } from '../../adapters/sap.adapter';
+import { ZohoAdapter } from '../../adapters/zoho.adapter';
 import { LogsService } from '../logs/logs.service';
 import { ItsmIntegrationsService } from '../itsm/itsm-integrations.service';
 import { AiRecommendationService } from '../ai-recommendation/ai-recommendation.service';
@@ -26,8 +27,9 @@ export declare class ProvisioningService {
     private readonly zoom;
     private readonly servicenow;
     private readonly sap;
+    private readonly zoho;
     private readonly logger;
-    constructor(logsService: LogsService, itsmIntegrations: ItsmIntegrationsService, aiRecommendation: AiRecommendationService, emailService: EmailService, github: GithubAdapter, slack: SlackAdapter, google: GoogleAdapter, jira: JiraAdapter, salesforce: SalesforceAdapter, microsoft365: Microsoft365Adapter, zoom: ZoomAdapter, servicenow: ServiceNowAdapter, sap: SapAdapter);
+    constructor(logsService: LogsService, itsmIntegrations: ItsmIntegrationsService, aiRecommendation: AiRecommendationService, emailService: EmailService, github: GithubAdapter, slack: SlackAdapter, google: GoogleAdapter, jira: JiraAdapter, salesforce: SalesforceAdapter, microsoft365: Microsoft365Adapter, zoom: ZoomAdapter, servicenow: ServiceNowAdapter, sap: SapAdapter, zoho: ZohoAdapter);
     provisionEmployee(event: EmployeeEvent): Promise<void>;
     deprovisionEmployee(event: EmployeeEvent): Promise<void>;
     private runProvisioning;

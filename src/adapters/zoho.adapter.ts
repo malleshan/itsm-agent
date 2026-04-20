@@ -33,8 +33,9 @@ export class ZohoAdapter implements IAdapter {
   }
 
   private async getAccessToken(c: ZohoCreds): Promise<string> {
+    const accountsUrl = c.accountsUrl || 'https://accounts.zoho.com';
     const res = await axios.post<{ access_token: string }>(
-      `${c.accountsUrl}/oauth/v2/token`,
+      `${accountsUrl}/oauth/v2/token`,
       null,
       {
         params: {
@@ -57,7 +58,7 @@ export class ZohoAdapter implements IAdapter {
   }
 
   private directoryUrl(c: ZohoCreds, path: string) {
-    const base = c.accountsUrl.replace('accounts.', 'directory.');
+    const base = (c.accountsUrl || 'https://accounts.zoho.com').replace('accounts.', 'directory.');
     return `${base}/api/v1/org/${c.orgId}${path}`;
   }
 

@@ -2,7 +2,6 @@ import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 export declare class EmployeeController {
     private readonly employeeService;
-    private readonly logger;
     constructor(employeeService: EmployeeService);
     create(dto: CreateEmployeeDto): Promise<{
         id: import("mongoose").Types.ObjectId;

@@ -19,7 +19,7 @@ import { TenantConfigModule } from './modules/tenant-config/tenant-config.module
       envFilePath: '.env',
     }),
 
-    MongooseModule.forRoot(process.env.MONGO_URI, {
+    MongooseModule.forRoot(process.env.MONGO_URI || process.env.MONGO_URI_LOCAL, {
       connectionFactory: (connection) => {
         connection.on('connected', () =>
           console.log('[Mongoose] Connected to MongoDB'),

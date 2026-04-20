@@ -23,7 +23,7 @@ export declare class ProvisioningController {
         email: string;
     }>;
     handleEmployeeOnboarded(message: any, context: KafkaContext): Promise<void>;
-    handleEmployeeOffboarded(message: any, context: KafkaContext): Promise<void>;
+    handleEmployeeOffboarded(message: any, _context: KafkaContext): Promise<void>;
     private parsePayload;
 }
 export {};

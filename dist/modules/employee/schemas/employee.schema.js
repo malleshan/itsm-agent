@@ -55,4 +55,6 @@ exports.Employee = Employee = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Employee);
 exports.EmployeeSchema = mongoose_1.SchemaFactory.createForClass(Employee);
+exports.EmployeeSchema.index({ tenantId: 1, status: 1 });
+exports.EmployeeSchema.index({ tenantId: 1, email: 1 });
 //# sourceMappingURL=employee.schema.js.map

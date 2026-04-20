@@ -11,16 +11,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var EmployeeController_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmployeeController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const employee_service_1 = require("./employee.service");
 const create_employee_dto_1 = require("./dto/create-employee.dto");
-let EmployeeController = EmployeeController_1 = class EmployeeController {
+let EmployeeController = class EmployeeController {
     constructor(employeeService) {
         this.employeeService = employeeService;
-        this.logger = new common_1.Logger(EmployeeController_1.name);
     }
     async create(dto) {
         const employee = await this.employeeService.create(dto);
@@ -54,6 +53,9 @@ exports.EmployeeController = EmployeeController;
 __decorate([
     (0, common_1.Post)(),
     (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
+    (0, swagger_1.ApiOperation)({ summary: 'Onboard a new employee and trigger provisioning' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Employee created and provisioning triggered' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Validation error' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_employee_dto_1.CreateEmployeeDto]),
@@ -61,12 +63,18 @@ __decorate([
 ], EmployeeController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'List all employees' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Employee list' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], EmployeeController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get employee by ID' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'Employee MongoDB ObjectId' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Employee record' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Employee not found' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -74,12 +82,18 @@ __decorate([
 ], EmployeeController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id/offboard'),
+    (0, swagger_1.ApiOperation)({ summary: 'Offboard employee and trigger de-provisioning' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'Employee MongoDB ObjectId' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Employee offboarded, de-provisioning in progress' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Employee not found' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], EmployeeController.prototype, "offboard", null);
-exports.EmployeeController = EmployeeController = EmployeeController_1 = __decorate([
+exports.EmployeeController = EmployeeController = __decorate([
+    (0, swagger_1.ApiTags)('Employees'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('employees'),
     __metadata("design:paramtypes", [employee_service_1.EmployeeService])
 ], EmployeeController);

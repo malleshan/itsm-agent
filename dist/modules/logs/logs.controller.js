@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LogsController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const logs_service_1 = require("./logs.service");
 let LogsController = class LogsController {
     constructor(logsService) {
@@ -35,6 +36,9 @@ let LogsController = class LogsController {
 exports.LogsController = LogsController;
 __decorate([
     (0, common_1.Get)('employee/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get audit logs by employee ID' }),
+    (0, swagger_1.ApiParam)({ name: 'id', description: 'Employee MongoDB ObjectId' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Audit log entries for the employee' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -42,6 +46,9 @@ __decorate([
 ], LogsController.prototype, "findByEmployeeId", null);
 __decorate([
     (0, common_1.Get)('tenant/:tenantId'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all audit logs for a tenant' }),
+    (0, swagger_1.ApiParam)({ name: 'tenantId', description: 'Tenant identifier' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Audit log entries for the tenant' }),
     __param(0, (0, common_1.Param)('tenantId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -49,12 +56,17 @@ __decorate([
 ], LogsController.prototype, "findByTenant", null);
 __decorate([
     (0, common_1.Get)(':email'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get audit logs by employee email' }),
+    (0, swagger_1.ApiParam)({ name: 'email', description: 'Employee email address' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Audit log entries for the email' }),
     __param(0, (0, common_1.Param)('email')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], LogsController.prototype, "findByEmail", null);
 exports.LogsController = LogsController = __decorate([
+    (0, swagger_1.ApiTags)('Audit Logs'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('logs'),
     __metadata("design:paramtypes", [logs_service_1.LogsService])
 ], LogsController);
