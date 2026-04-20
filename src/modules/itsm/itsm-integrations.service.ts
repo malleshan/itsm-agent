@@ -72,7 +72,11 @@ export class ItsmIntegrationsService {
 
   /** Returns decrypted credentials for a tenant — used by provisioning. */
   async getCredentials(tenantId: string): Promise<AdapterCredentials> {
-    const integrations = await this.findAllByTenant(tenantId);
+    return this.buildCredentials(await this.findAllByTenant(tenantId));
+  }
+
+  /** Synchronously builds credentials from an already-fetched integrations list. */
+  buildCredentials(integrations: ItsmIntegrationDocument[]): AdapterCredentials {
     const creds: AdapterCredentials = {};
     for (const i of integrations) {
       if (i.enabled && i.credentials && Object.keys(i.credentials).length > 0) {

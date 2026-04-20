@@ -7,20 +7,22 @@ import {
   Post,
   HttpCode,
   HttpStatus,
-  Logger,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 
+@ApiTags('Employees')
+@ApiBearerAuth()
 @Controller('employees')
 export class EmployeeController {
-  private readonly logger = new Logger(EmployeeController.name);
-
   constructor(private readonly employeeService: EmployeeService) {}
 
-  /** POST /employees — onboard and trigger provisioning via Kafka. */
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Onboard a new employee and trigger provisioning' })
+  @ApiResponse({ status: 201, description: 'Employee created and provisioning triggered' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   async create(@Body() dto: CreateEmployeeDto) {
     const employee = await this.employeeService.create(dto);
     return {
@@ -33,20 +35,27 @@ export class EmployeeController {
     };
   }
 
-  /** GET /employees */
   @Get()
+  @ApiOperation({ summary: 'List all employees' })
+  @ApiResponse({ status: 200, description: 'Employee list' })
   async findAll() {
     return this.employeeService.findAll();
   }
 
-  /** GET /employees/:id */
   @Get(':id')
+  @ApiOperation({ summary: 'Get employee by ID' })
+  @ApiParam({ name: 'id', description: 'Employee MongoDB ObjectId' })
+  @ApiResponse({ status: 200, description: 'Employee record' })
+  @ApiResponse({ status: 404, description: 'Employee not found' })
   async findOne(@Param('id') id: string) {
     return this.employeeService.findById(id);
   }
 
-  /** PATCH /employees/:id/offboard — triggers de-provisioning via Kafka. */
   @Patch(':id/offboard')
+  @ApiOperation({ summary: 'Offboard employee and trigger de-provisioning' })
+  @ApiParam({ name: 'id', description: 'Employee MongoDB ObjectId' })
+  @ApiResponse({ status: 200, description: 'Employee offboarded, de-provisioning in progress' })
+  @ApiResponse({ status: 404, description: 'Employee not found' })
   async offboard(@Param('id') id: string) {
     const employee = await this.employeeService.offboard(id);
     return {

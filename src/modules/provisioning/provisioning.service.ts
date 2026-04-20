@@ -8,6 +8,7 @@ import { Microsoft365Adapter } from '../../adapters/microsoft365.adapter';
 import { ZoomAdapter } from '../../adapters/zoom.adapter';
 import { ServiceNowAdapter } from '../../adapters/servicenow.adapter';
 import { SapAdapter } from '../../adapters/sap.adapter';
+import { ZohoAdapter } from '../../adapters/zoho.adapter';
 import { LogsService, CreateLogDto } from '../logs/logs.service';
 import { LogStatus, LogAction } from '../logs/schemas/log.schema';
 import { ItsmIntegrationsService } from '../itsm/itsm-integrations.service';
@@ -35,30 +36,29 @@ export class ProvisioningService {
     private readonly zoom: ZoomAdapter,
     private readonly servicenow: ServiceNowAdapter,
     private readonly sap: SapAdapter,
+    private readonly zoho: ZohoAdapter,
   ) {}
-
-  // ── Public API ─────────────────────────────────────────────────────────────
 
   async provisionEmployee(event: EmployeeEvent): Promise<void> {
     const { employeeId, tenantId, firstName, lastName, email, role, department } = event;
     const password = generatePassword();
 
-    // 1. Get tenant-enabled tools (from itsm_integrations, cached in Redis)
-    const enabledTools = await this.itsmIntegrations.getEnabledTools(tenantId)
-      .then((tools) => (tools.length > 0 ? tools : ALL_TOOLS));
+    // Single DB call — both getEnabledTools and getCredentials use the same cached result
+    const integrations = await this.itsmIntegrations.findAllByTenant(tenantId);
+    const enabledToolNames = integrations.length > 0
+      ? integrations.filter((i) => i.enabled).map((i) => i.service)
+      : ALL_TOOLS;
 
-    // 2. AI recommendation with fallback to deterministic rules
+    const credentials = this.itsmIntegrations.buildCredentials(integrations);
+
     const tools = await this.aiRecommendation.recommendTools({
-      role, department, firstName, enabledTools,
+      role, department, firstName, enabledTools: enabledToolNames,
     });
-
-    const credentials = await this.itsmIntegrations.getCredentials(tenantId);
 
     this.logger.log(
       `[PROVISION] ${firstName} ${lastName} | role: ${role} | email: ${email} | tools: [${tools.join(', ')}]`,
     );
 
-    // 3. Execute all adapters concurrently, isolating failures
     const results = await Promise.allSettled(
       tools.map((tool) =>
         this.runProvisioning({ employeeId, tenantId, email, tool, role, credentials, password }),
@@ -69,7 +69,6 @@ export class ProvisioningService {
     const failed = tools.filter((_, i) => results[i].status === 'rejected');
     if (failed.length) this.logger.warn(`Failed tools: [${failed.join(', ')}] for ${email}`);
 
-    // 4. Send welcome email with credentials
     if (succeeded.length > 0) {
       await this.emailService
         .sendOnboardingEmail({ to: email, firstName, password, tools: succeeded, tenantId })
@@ -80,14 +79,16 @@ export class ProvisioningService {
   async deprovisionEmployee(event: EmployeeEvent): Promise<void> {
     const { employeeId, tenantId, firstName, email, role, department } = event;
 
-    const enabledTools = await this.itsmIntegrations.getEnabledTools(tenantId)
-      .then((tools) => (tools.length > 0 ? tools : ALL_TOOLS));
+    const integrations = await this.itsmIntegrations.findAllByTenant(tenantId);
+    const enabledToolNames = integrations.length > 0
+      ? integrations.filter((i) => i.enabled).map((i) => i.service)
+      : ALL_TOOLS;
+
+    const credentials = this.itsmIntegrations.buildCredentials(integrations);
 
     const tools = await this.aiRecommendation.recommendTools({
-      role, department, firstName, enabledTools,
+      role, department, firstName, enabledTools: enabledToolNames,
     });
-
-    const credentials = await this.itsmIntegrations.getCredentials(tenantId);
 
     this.logger.log(
       `[DEPROVISION] ${firstName} | role: ${role} | email: ${email} | tools: [${tools.join(', ')}]`,
@@ -109,8 +110,6 @@ export class ProvisioningService {
         .catch((e: Error) => this.logger.error(`Offboarding email failed: ${e.message}`));
     }
   }
-
-  // ── Private helpers ────────────────────────────────────────────────────────
 
   private async runProvisioning(p: {
     employeeId: string; tenantId: string; email: string;
@@ -167,6 +166,7 @@ export class ProvisioningService {
       case 'zoom':         return p ? this.zoom.inviteUser(email, credentials) : this.zoom.removeUser(email, credentials);
       case 'servicenow':   return p ? this.servicenow.inviteUser(email, credentials) : this.servicenow.removeUser(email, credentials);
       case 'sap':          return p ? this.sap.inviteUser(email, credentials) : this.sap.removeUser(email, credentials);
+      case 'zoho':         return p ? this.zoho.inviteUser(email, credentials) : this.zoho.removeUser(email, credentials);
       default: this.logger.warn(`Unknown tool "${tool}" — skipping`);
     }
   }

@@ -2,7 +2,7 @@ import { IsBoolean, IsIn, IsNotEmpty, IsObject, IsOptional, IsString } from 'cla
 
 export const SUPPORTED_SERVICES = [
   'github', 'slack', 'google', 'microsoft365',
-  'jira', 'zoom', 'servicenow', 'sap', 'salesforce',
+  'jira', 'zoom', 'servicenow', 'sap', 'salesforce', 'zoho',
 ] as const;
 
 export class UpsertIntegrationDto {

@@ -2,26 +2,26 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 
-/** Deterministic fallback: role → tools (covers all 9 SaaS services) */
+/** Deterministic fallback: role → tools (covers all 10 SaaS services) */
 const ROLE_TOOLS: Record<string, string[]> = {
-  developer: ['github', 'slack', 'jira'],
-  hr: ['slack', 'google', 'microsoft365'],
+  developer: ['github', 'slack', 'jira', 'zoho'],
+  hr: ['slack', 'google', 'microsoft365', 'zoho'],
   testing: ['jira', 'slack', 'zoom'],
-  it: ['github', 'slack', 'google', 'servicenow'],
+  it: ['github', 'slack', 'google', 'servicenow', 'zoho'],
   cybersecurity: ['github', 'jira', 'servicenow'],
   salesforce: ['salesforce', 'slack'],
-  manager: ['slack', 'microsoft365', 'zoom'],
-  finance: ['sap', 'slack'],
+  manager: ['slack', 'microsoft365', 'zoom', 'zoho'],
+  finance: ['sap', 'slack', 'zoho'],
   engineering_lead: ['github', 'slack', 'jira', 'zoom'],
   devops: ['github', 'slack', 'servicenow'],
-  support: ['slack', 'servicenow', 'jira'],
-  marketing: ['slack', 'microsoft365', 'salesforce'],
+  support: ['slack', 'servicenow', 'jira', 'zoho'],
+  marketing: ['slack', 'microsoft365', 'salesforce', 'zoho'],
   default: ['slack'],
 };
 
 export const ALL_TOOLS = [
   'github', 'slack', 'google', 'microsoft365',
-  'jira', 'zoom', 'servicenow', 'sap', 'salesforce',
+  'jira', 'zoom', 'servicenow', 'sap', 'salesforce', 'zoho',
 ];
 
 @Injectable()

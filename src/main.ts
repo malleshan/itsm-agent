@@ -36,6 +36,7 @@ async function bootstrap() {
   const winstonLogger = new WinstonLoggerService();
 
   const app = await NestFactory.create(AppModule, { logger: winstonLogger });
+  app.enableCors({ origin: process.env.CORS_ORIGIN || '*', credentials: true });
 
   const kafkaEnabled = process.env.KAFKA_ENABLED !== 'false';
 
